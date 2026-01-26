@@ -2,108 +2,23 @@
 <html>
 <head>
 <title>Weather App</title>
-<style>
-body{
-  font-family: 'Segoe UI', sans-serif;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  background:#e6f9ff;
-  margin:0;
-}
-.container{
-  background:white;
-  padding:30px;
-  border-radius:20px;
-  box-shadow:0 5px 12px rgba(0,0,0,0.1);
-  width:300px;
-  text-align:center;
-}
-input{
-  padding:10px;
-  width:80%;
-  border-radius:10px;
-  border:1px solid #ccc;
-  margin-bottom:10px;
-}
-button{
-  padding:10px;
-  width:87%;
-  border:none;
-  border-radius:10px;
-  background:#00aaff;
-  color:white;
-  cursor:pointer;
-  font-weight:bold;
-}
-button:hover{background:#0088d0}
-#icon{
-  font-size:55px;
-  margin:10px 0;
-}
-#temp{
-  font-size:40px;
-  font-weight:bold;
-}
-#cityN{
-  font-size:22px;
-  margin-bottom:10px;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <div class="container">
-  <input id="city" placeholder="Enter city">
-  <button onclick="getWeather()">Get Weather</button>
-  <div id="icon"></div>
-  <div id="cityN"></div>
-  <div id="temp"></div>
-  <div id="cond"></div>
+
+  <div class="top-bar">
+    <input id="city" placeholder="Enter city">
+    <button id="searchBtn">Get Weather</button>
+    <button id="themeBtn">🌙</button>
+  </div>
+
+  <div id="current" class="fade"></div>
+  <div id="forecast" class="slide"></div>
+
 </div>
 
-<script>
-const key="f8c8ea05c27d362281e2d2ca41801051";
-
-window.onload=()=>{
-  let last=localStorage.getItem("city");
-  if(last){
-    document.getElementById("city").value=last;
-    getWeather();
-  }
-}
-
-function iconFor(cond){
-  cond=cond.toLowerCase();
-  if(cond.includes("cloud")) return "☁️";
-  if(cond.includes("rain"))  return "🌧️";
-  if(cond.includes("clear")) return "☀️";
-  if(cond.includes("snow"))  return "❄️";
-  return "🌤️";
-}
-
-async function getWeather(){
-  let city=document.getElementById("city").value;
-  if(!city) return;
-  localStorage.setItem("city",city);
-  let url=`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=metric`;
-  let res=await fetch(url);
-  let data=await res.json();
-  
-  if(data.cod!==200){
-    document.getElementById("cityN").innerText="City not found";
-    document.getElementById("icon").innerText="";
-    document.getElementById("temp").innerText="";
-    document.getElementById("cond").innerText="";
-    return;
-  }
-
-  let cond=data.weather[0].main;
-  document.getElementById("icon").innerText=iconFor(cond);
-  document.getElementById("cityN").innerText=data.name;
-  document.getElementById("temp").innerText=data.main.temp+"°C";
-  document.getElementById("cond").innerText=cond;
-}
-</script>
+<script src="app.js"></script>
 </body>
 </html>
