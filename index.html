@@ -13,10 +13,15 @@
     <button id="searchBtn">Get Weather</button>
     <button id="themeBtn">🌙</button>
   </div>
+  <div id="loader" style="display:none; text-align:center; margin:10px;">
+  ⏳ Loading...
+  </div>
 
-  <div id="current" class="fade"></div>
-  <div id="forecast" class="slide"></div>
-
+  <h2 id="cityName" style="margin:5px 0; text-align:center;"></h2>
+  <div class="text-blur">
+    <div id="current" class="fade"></div>
+    <div id="forecast" class="slide"></div>
+  </div>
 </div>
 
 <script src="app.js"></script>
