@@ -24,20 +24,46 @@ body {
   margin:0;
   display:flex;
   justify-content:center;
-  align-items:flex-start;
+  align-items:center;
   padding:30px 10px;
+}
+html, body {
+  width: 100%;
+  min-height: 100vh;
+}
+
+body {
+  background-color: transparent !important;
+}
+body {
+  transition: background 0.6s ease-in-out;
 }
 
 .container {
-  background: var(--card);
-  padding:20px;
-  border-radius:20px;
-  max-width:350px;
-  width:100%;
-  box-shadow:0 5px 12px rgba(0,0,0,.15);
-  color:var(--text);
-  transition: all .4s;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.75),
+      rgba(10, 20, 30, 0.6)
+    );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  padding: 26px;
+  border-radius: 24px;
+  max-width: 430px;
+  min-height: 540px;
+  width: 100%;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,.35);
+  color: white;
+  transition: all .5s ease-in-out;
+
+  border: 1px solid rgba(255,255,255,0.08);
 }
+
+
+
 
 .top-bar {
   display:flex;
@@ -98,3 +124,146 @@ button:hover {
   .container { max-width:100%; }
   .day { font-size:14px; }
 }
+/* ---- Pretty Forecast ---- */
+.forecast-box {
+  margin-top:10px;
+}
+
+.day {
+  background: rgba(0,0,0,0.05);
+  border-radius:12px;
+  padding:8px 10px;
+  margin:6px 0;
+  transition: transform .2s;
+}
+
+.day:hover {
+  transform: scale(1.02);
+}
+#current, #forecast {
+  transition: all .5s ease-in-out;
+}
+
+#current.show, #forecast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+body.dark.sunny {
+  background-image:
+    linear-gradient(rgba(0,0,0,.25), rgba(0,0,0,.25)),
+    url("https://images.pexels.com/photos/531756/pexels-photo-531756.jpeg");
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+}
+
+body.dark.rain {
+  background-image:
+    linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.5)),
+    url("https://images.pexels.com/photos/33545/sunrise-clouds-sky-cloudy.jpg");
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+}
+
+
+body.dark.cloud {
+  background-image:
+    linear-gradient(rgba(0,0,0,.25), rgba(0,0,0,.25)),
+    url("https://images.pexels.com/photos/158163/clouds-cloudy-sky-gray-158163.jpeg");
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+}
+
+
+body.dark.snow {
+  background-image:
+    linear-gradient(rgba(0,0,0,.15), rgba(0,0,0,.15)),
+    url("https://images.pexels.com/photos/1410128/pexels-photo-1410128.jpeg");
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+}
+/* -------- IMAGE-LESS WEATHER BACKGROUNDS -------- */
+
+/* ☀️ Sunny / Clear */
+body.dark.sunny {
+  background:
+    radial-gradient(circle at 80% 10%, #fff176 0%, #ffeb3b 10%, transparent 40%),
+    linear-gradient(180deg, #87cefa, #b3e5ff);
+  background-attachment: fixed;
+}
+
+/* 🌧️ Rain */
+body.dark.rain {
+  background:
+    linear-gradient(180deg, #2c3e50, #4b6584);
+  background-attachment: fixed;
+}
+
+/* ☁️ Cloud */
+body.dark.cloud {
+  background:
+    linear-gradient(180deg, #dfe6e9, #b2bec3);
+  background-attachment: fixed;
+}
+
+/* ❄️ Snow */
+body.dark.snow {
+  background:
+    linear-gradient(180deg, #f5f7ff, #dfe9ff);
+  background-attachment: fixed;
+}
+.day {
+  background: rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 9px 12px;
+  margin: 7px 0;
+  backdrop-filter: blur(4px);
+  transition: transform .2s, background .2s;
+}
+
+.day:hover {
+  background: rgba(255,255,255,0.12);
+  transform: scale(1.02);
+}
+.container::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 24px;
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.2),
+    rgba(255,255,255,0.05),
+    rgba(255,255,255,0.2)
+  );
+  mask: linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: destination-out;
+  pointer-events: none;
+}
+.container {
+  position: relative;
+}
+.text-blur {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+}
+@keyframes float {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+.container.float {
+  animation: float 0.8s ease-in-out;
+}
+
