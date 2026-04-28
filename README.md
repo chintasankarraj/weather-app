@@ -39,3 +39,12 @@ weather-app/
 │── style.css
 │── app.js
 │── README.md
+
+
+🙌 Author
+
+Developed by Chintasankarraj
+
+⭐ If you like this project
+
+Give it a ⭐ on GitHub!
