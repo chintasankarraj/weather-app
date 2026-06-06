@@ -16,6 +16,8 @@ cityInput.addEventListener("keypress", function(e){
 themeBtn.onclick = toggleTheme;
 
 window.onload = () => {
+  getLocationWeather();
+  autoTheme();
   let last = localStorage.getItem("city");
   let theme = localStorage.getItem("theme");
   if (theme === "dark") document.body.classList.add("dark");
@@ -46,6 +48,9 @@ function setTheme(cond){
   else if(cond.includes("rain")) document.body.classList.add("rain");
   else if(cond.includes("snow")) document.body.classList.add("snow");
   else if(cond.includes("cloud")) document.body.classList.add("cloud");
+  else if(cond.includes("wind")){
+  iconBox.innerHTML = `<div class="wind"></div>`;
+}
 }
 
 async function getWeather(){
@@ -78,9 +83,11 @@ async function getWeather(){
 
     renderForecast(data);
 
-  } catch(err){
-    currentDiv.innerHTML = "⚠️ Network error. Try again.";
-  }
+  } catch(err)
+    {
+      console.error(err);
+      loader.style.display = "none";
+    }
 }
 
 
@@ -163,5 +170,25 @@ function renderForecast(data){
 
   setTimeout(()=> currentDiv.classList.add("show"),10);
   setTimeout(()=> forecastDiv.classList.add("show"),50);
-}
+  let labels = data.list.slice(0,8).map(d =>
+  new Date(d.dt * 1000).getHours() + ":00"
+);
 
+let temps = data.list.slice(0,8).map(d => d.main.temp);
+
+new Chart(document.getElementById("tempChart"), {
+  type: "line",
+  data: {
+    labels: labels,
+    datasets: [{
+      label: "Temp °C",
+      data: temps,
+      borderWidth: 2,
+      tension: 0.4
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } }
+  }
+});
+}
