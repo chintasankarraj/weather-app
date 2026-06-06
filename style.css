@@ -266,4 +266,37 @@ body.dark.snow {
 .container.float {
   animation: float 0.8s ease-in-out;
 }
+@media (max-width: 600px){
 
+  .container {
+    max-width: 95%;
+    min-height: auto;
+    padding: 18px;
+  }
+
+  #forecast {
+    grid-template-columns: 1fr; /* single column on mobile */
+  }
+
+  #anim-icon {
+    width: 70px;
+    height: 70px;
+  }
+
+  button {
+    padding: 8px;
+    font-size: 14px;
+  }
+}
+.wind {
+  width: 80px;
+  height: 20px;
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: windMove 1s infinite linear;
+}
+
+@keyframes windMove {
+  from { transform: translateX(-10px); }
+  to { transform: translateX(10px); }
+}
