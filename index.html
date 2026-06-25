@@ -1,32 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<title>Weather App</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>SkyCast | Weather Dashboard</title>
+
+    <link rel="stylesheet" href="newstyle.css">
 </head>
+
 <body>
 
 <div class="container">
 
-  <div class="top-bar">
-    <input id="city" placeholder="Enter city">
-    <button id="searchBtn">Get Weather</button>
-    <button id="themeBtn">🌙</button>
-  </div>
-  <div id="loader" style="display:none; text-align:center; margin:10px;">
-  ⏳ Loading...
-  </div>
+    <div class="top-bar">
 
-  <h2 id="cityName" style="margin:5px 0; text-align:center;"></h2>
-  <div class="text-blur">
-    <div id="current" class="fade"></div>
-    <div id="forecast" class="slide"></div>
-     <canvas id="tempChart" height="150"></canvas>
+        <input
+            id="city"
+            type="text"
+            placeholder="Search city..."
+        >
 
-  </div>
+        <button
+            id="searchBtn"
+            title="Search Weather">
+            Get Weather
+        </button>
+
+        <button
+            id="locationBtn"
+            title="Current Location">
+            📍
+        </button>
+
+        <button
+            id="themeBtn"
+            title="Toggle Theme">
+            🌙
+        </button>
+
+    </div>
+
+    <div id="loader">
+
+        <div class="spinner"></div>
+
+        <p>Loading weather...</p>
+
+    </div>
+
+    <h2 id="cityName"></h2>
+
+<div class="dashboard">
+
+    <!-- Left Side -->
+    <div class="left-panel">
+
+        <div class="text-blur">
+            <div id="current"></div>
+        </div>
+
+    </div>
+
+    <!-- Right Side -->
+    <div class="right-panel">
+
+        <div class="text-blur">
+
+            <div class="chart-title">
+                🌡 Temperature Trend
+            </div>
+
+            <div class="chart-container">
+                <canvas id="tempChart"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
-<script src="app.js"></script>
+<div class="forecast-section">
+
+    <h3>📅 5-Day Forecast</h3>
+
+    <div id="forecast"></div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="newapp.js"></script>
+
 </body>
+
 </html>
