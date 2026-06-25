@@ -1,194 +1,1010 @@
-const key = "f8c8ea05c27d362281e2d2ca41801051";
+/*=========================================================
+    SkyCast Weather Dashboard
+    Part 1 - Foundation
+=========================================================*/
+
+
+// =====================================================
+// API CONFIGURATION
+// =====================================================
+
+const API_KEY = "f8c8ea05c27d362281e2d2ca41801051";
+
+const BASE_URL = "https://api.openweathermap.org/data/2.5";
+
+
+// =====================================================
+// DOM ELEMENTS
+// =====================================================
+
 const cityInput = document.getElementById("city");
-const loader = document.getElementById("loader");
-const cityName = document.getElementById("cityName");
+
 const searchBtn = document.getElementById("searchBtn");
+
 const themeBtn = document.getElementById("themeBtn");
+
+const locationBtn = document.getElementById("locationBtn");
+
+const loader = document.getElementById("loader");
+
+const cityName = document.getElementById("cityName");
+
 const currentDiv = document.getElementById("current");
+
 const forecastDiv = document.getElementById("forecast");
 
-searchBtn.onclick = getWeather;
-cityInput.addEventListener("keypress", function(e){
-  if(e.key === "Enter"){
-    getWeather();
-  }
+const chartCanvas = document.getElementById("tempChart");
+
+const container = document.querySelector(".container");
+
+
+// =====================================================
+// GLOBAL VARIABLES
+// =====================================================
+
+let weatherChart = null;
+
+let currentTheme = "light";
+
+let currentCity = "";
+
+let recentSearches = [];
+
+let favouriteCities = [];
+
+
+// =====================================================
+// EVENT LISTENERS
+// =====================================================
+
+// Search Button
+
+if (searchBtn) {
+    searchBtn.addEventListener("click", getWeather);
+}
+
+if (cityInput) {
+    cityInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            getWeather();
+        }
+    });
+}
+
+if (themeBtn) {
+    themeBtn.addEventListener("click", toggleTheme);
+}
+
+if (locationBtn) {
+    locationBtn.addEventListener("click", getCurrentLocation);
+}
+
+// =====================================================
+// INITIALIZE APPLICATION
+// =====================================================
+
+window.addEventListener("load",()=>{
+
+    initializeApp();
+
 });
-themeBtn.onclick = toggleTheme;
 
-window.onload = () => {
-  getLocationWeather();
-  autoTheme();
-  let last = localStorage.getItem("city");
-  let theme = localStorage.getItem("theme");
-  if (theme === "dark") document.body.classList.add("dark");
-  if (last) { cityInput.value = last; getWeather(); }
-};
 
-function toggleTheme(){
-  document.body.classList.toggle("dark");
-  localStorage.setItem(
-    "theme",
-    document.body.classList.contains("dark") ? "dark" : "light"
-  );
+// =====================================================
+// INITIALIZATION
+// =====================================================
+
+// function initializeApp(){
+
+//     loadTheme();
+
+//     loadLastCity();
+
+//     loadRecentSearches();
+
+//     autoTheme();
+
+// }
+
+
+// =====================================================
+// LOCAL STORAGE
+// =====================================================
+
+function loadTheme(){
+
+    const savedTheme = localStorage.getItem("theme");
+
+    if(savedTheme==="dark"){
+
+        document.body.classList.add("dark");
+
+        currentTheme="dark";
+
+    }
+
 }
 
-function icon(cond){
-  cond = cond.toLowerCase();
-  if(cond.includes("cloud")) return "☁️";
-  if(cond.includes("rain")) return "🌧️";
-  if(cond.includes("clear")) return "☀️";
-  if(cond.includes("snow")) return "❄️";
-  return "🌤️";
+
+function saveTheme(){
+
+    localStorage.setItem("theme",currentTheme);
+
 }
 
-function setTheme(cond){
-  document.body.classList.remove("sunny","rain","snow","cloud");
-  cond = cond.toLowerCase();
-  if(cond.includes("clear")) document.body.classList.add("sunny");
-  else if(cond.includes("rain")) document.body.classList.add("rain");
-  else if(cond.includes("snow")) document.body.classList.add("snow");
-  else if(cond.includes("cloud")) document.body.classList.add("cloud");
-  else if(cond.includes("wind")){
-  iconBox.innerHTML = `<div class="wind"></div>`;
+
+function loadLastCity(){
+
+    const city = localStorage.getItem("lastCity");
+
+    if(city){
+
+        cityInput.value = city;
+
+        currentCity = city;
+
+        getWeather();
+
+    }
+
 }
+
+
+// function saveLastCity(city){
+
+//     localStorage.setItem("lastCity",city);
+
+// }
+
+
+function loadRecentSearches(){
+
+    const saved = localStorage.getItem("recentSearches");
+
+    if(saved){
+
+        recentSearches = JSON.parse(saved);
+
+    }
+
 }
 
-async function getWeather(){
-  let city = cityInput.value.trim();
-  if(!city) return;
-  loader.style.display = "block";
-  document.querySelector(".container").classList.add("float");
-  setTimeout(() => {
-    document.querySelector(".container").classList.remove("float");
-  }, 900);
 
-  currentDiv.innerHTML = "";
-  forecastDiv.innerHTML = "";
+function saveRecentSearches(){
 
+    localStorage.setItem(
 
-  localStorage.setItem("city", city);
+        "recentSearches",
 
-  try {
-    // Single reliable API call (current + forecast together)
-    let res = await fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${key}&units=metric`
+        JSON.stringify(recentSearches)
+
     );
 
-    let data = await res.json();
-
-    if(data.cod !== "200"){
-      currentDiv.innerHTML = "❌ City not found";
-      return;
-    }
-
-    renderForecast(data);
-
-  } catch(err)
-    {
-      console.error(err);
-      loader.style.display = "none";
-    }
 }
 
 
-function render(data){
-  let cond = data.current.weather[0].main;
-  setTheme(cond);
+// =====================================================
+// LOADER
+// =====================================================
 
-  currentDiv.classList.remove("show");
-  forecastDiv.classList.remove("show");
+function showLoader(){
 
-  currentDiv.innerHTML =
-    `<div style="font-size:55px">${icon(cond)}</div>
-     <div style="font-size:32px">${Math.round(data.current.temp)}°C</div>
-     <div style="font-size:20px; margin-bottom:6px">${cond}</div>`;
+    loader.style.display="block";
 
-  let days = data.daily.slice(0,7).map(d=>{
-    let dt = new Date(d.dt * 1000)
-      .toLocaleDateString('en-US',{ weekday:'short' });
+}
 
-    return `
-      <div class="day">
-        ${dt} ${icon(d.weather[0].main)}
-        ${Math.round(d.temp.max)}° /
-        ${Math.round(d.temp.min)}°
-      </div>
+
+function hideLoader(){
+
+    loader.style.display="none";
+
+}
+
+
+// =====================================================
+// CONTAINER ANIMATION
+// =====================================================
+
+function animateContainer(){
+
+    container.classList.add("float");
+
+    setTimeout(()=>{
+
+        container.classList.remove("float");
+
+    },800);
+
+}
+
+/*=========================================================
+    Part 2 : API • Weather • Geolocation
+=========================================================*/
+
+
+// =====================================================
+// WEATHER SEARCH
+// =====================================================
+
+async function getWeather(){
+
+    const city = cityInput.value.trim();
+
+    if(city===""){
+
+        showError("Please enter a city.");
+
+        return;
+
+    }
+
+    currentCity = city;
+
+    saveLastCity(city);
+
+    animateContainer();
+
+    showLoader();
+
+    try{
+
+        const response = await fetch(
+
+`${BASE_URL}/forecast?q=${city}&appid=${API_KEY}&units=metric`
+
+        );
+
+        const data = await response.json();
+
+        hideLoader();
+
+        if(data.cod !== "200"){
+
+            showError("City not found.");
+
+            return;
+
+        }
+
+        renderWeather(data);
+
+    }
+
+    catch(error){
+
+        hideLoader();
+
+        console.error(error);
+
+        showError("Network Error");
+
+    }
+
+}
+
+
+
+// =====================================================
+// CURRENT LOCATION
+// =====================================================
+
+function getCurrentLocation(){
+
+    if(!navigator.geolocation){
+
+        showError("Geolocation not supported");
+
+        return;
+
+    }
+
+    showLoader();
+
+    navigator.geolocation.getCurrentPosition(
+
+        fetchLocationWeather,
+
+        locationError
+
+    );
+
+}
+
+
+
+async function fetchLocationWeather(position){
+
+    const lat = position.coords.latitude;
+
+    const lon = position.coords.longitude;
+
+    try{
+
+        const response = await fetch(
+
+`${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
+
+        );
+
+        const data = await response.json();
+
+        hideLoader();
+
+        renderWeather(data);
+
+    }
+
+    catch(error){
+
+        hideLoader();
+
+        showError("Unable to fetch location.");
+
+    }
+
+}
+
+
+
+function locationError(){
+
+    hideLoader();
+
+    showError("Location permission denied.");
+
+}
+
+
+
+// =====================================================
+// THEME
+// =====================================================
+
+function toggleTheme(){
+
+    document.body.classList.toggle("dark");
+
+    currentTheme =
+
+    document.body.classList.contains("dark")
+
+    ?
+
+    "dark"
+
+    :
+
+    "light";
+
+    saveTheme();
+
+}
+
+
+
+function autoTheme(){
+
+    const hour = new Date().getHours();
+
+    if(hour>=18 || hour<=6){
+
+        document.body.classList.add("dark");
+
+    }
+
+}
+
+
+
+// =====================================================
+// ERROR MESSAGE
+// =====================================================
+
+function showError(message){
+
+    currentDiv.innerHTML=
+
+    `
+
+    <div class="error-box">
+
+        ❌ ${message}
+
+    </div>
+
     `;
-  }).join("");
 
-  forecastDiv.innerHTML = days;
+    forecastDiv.innerHTML="";
 
-  setTimeout(()=> currentDiv.classList.add("show"), 10);
-  setTimeout(()=> forecastDiv.classList.add("show"), 50);
 }
-function renderForecast(data){
 
-  loader.style.display = "none";
-  const descDiv = document.createElement("div");
-  currentDiv.appendChild(descDiv);
 
-  let cond = data.list[0].weather[0].main;
-  let today = data.list[0];   // <-- THIS LINE MUST BE HERE (inside the function)
 
-  cityName.innerText = data.city.name;
+// =====================================================
+// WEATHER BACKGROUND
+// =====================================================
 
-  setTheme(cond);
+function updateTheme(condition){
 
-  currentDiv.classList.remove("show");
-  forecastDiv.classList.remove("show");
+    document.body.classList.remove(
 
-  currentDiv.innerHTML =
-    `<div style="font-size:55px">${icon(cond)}</div>
-     <div style="font-size:32px">${Math.round(today.main.temp)}°C</div>
-     <div style="font-size:18px; margin-bottom:4px">
-        ${today.weather[0].description}
-     </div>
-     <div style="font-size:14px; opacity:.8;">
-        H: ${Math.round(today.main.temp_max)}° • 
-        L: ${Math.round(today.main.temp_min)}°
-     </div>
-     <div style="font-size:14px; opacity:.8; margin-top:4px;">
-        💨 ${today.wind.speed} m/s • 💧 ${today.main.humidity}%
-     </div>`;
+        "sunny",
 
-  let days = data.list
-    .filter((item, index) => index % 8 === 0)
-    .slice(0,7)
-    .map(d => {
-      let dt = new Date(d.dt * 1000)
-        .toLocaleDateString('en-US',{ weekday:'short' });
+        "cloud",
 
-      return `<div class="day">
-        ${dt} ${icon(d.weather[0].main)}
-        ${Math.round(d.main.temp_max)}° /
-        ${Math.round(d.main.temp_min)}°
-      </div>`;
-    })
-    .join("");
+        "rain",
 
-  forecastDiv.innerHTML = `<div class="forecast-box">${days}</div>`;
+        "snow"
 
-  setTimeout(()=> currentDiv.classList.add("show"),10);
-  setTimeout(()=> forecastDiv.classList.add("show"),50);
-  let labels = data.list.slice(0,8).map(d =>
-  new Date(d.dt * 1000).getHours() + ":00"
+    );
+
+    const weather =
+
+    condition.toLowerCase();
+
+    if(weather.includes("clear"))
+
+        document.body.classList.add("sunny");
+
+    else if(weather.includes("cloud"))
+
+        document.body.classList.add("cloud");
+
+    else if(weather.includes("rain"))
+
+        document.body.classList.add("rain");
+
+    else if(weather.includes("snow"))
+
+        document.body.classList.add("snow");
+
+}
+
+/*=========================================================
+    Part 3 : Render Weather
+=========================================================*/
+
+// =====================================================
+// MAIN RENDER
+// =====================================================
+
+// function renderWeather(data){
+
+//     const current = data.list[0];
+
+//     cityName.innerHTML =
+//         `${data.city.name}, ${data.city.country}`;
+
+//     updateTheme(current.weather[0].main);
+
+//     renderCurrentWeather(current);
+
+//     renderForecast(data.list);
+
+// }
+
+
+// =====================================================
+// CURRENT WEATHER
+// =====================================================
+
+function renderCurrentWeather(weather){
+
+    currentDiv.classList.remove("show");
+
+    currentDiv.innerHTML = `
+
+        <div id="anim-icon">
+
+            ${weatherIcon(weather.weather[0].main)}
+
+        </div>
+
+        <div class="current-temp">
+
+            ${Math.round(weather.main.temp)}°C
+
+        </div>
+
+        <div class="feels">
+
+            Feels Like ${Math.round(weather.main.feels_like)}°C
+
+        </div>
+
+        <div class="description">
+
+            ${capitalize(weather.weather[0].description)}
+
+        </div>
+
+        <div class="details">
+
+            <div class="detail-card">
+
+                <div class="detail-title">💨 Wind</div>
+
+                <div class="detail-value">
+
+                    ${weather.wind.speed} m/s
+
+                </div>
+
+            </div>
+
+            <div class="detail-card">
+
+                <div class="detail-title">💧 Humidity</div>
+
+                <div class="detail-value">
+
+                    ${weather.main.humidity}%
+
+                </div>
+
+            </div>
+
+            <div class="detail-card">
+
+                <div class="detail-title">👁 Visibility</div>
+
+                <div class="detail-value">
+
+                    ${(weather.visibility/1000).toFixed(1)} km
+
+                </div>
+
+            </div>
+
+            <div class="detail-card">
+
+                <div class="detail-title">📈 Pressure</div>
+
+                <div class="detail-value">
+
+                    ${weather.main.pressure} hPa
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+    setTimeout(()=>{
+
+        currentDiv.classList.add("show");
+
+    },100);
+
+}
+
+
+
+// =====================================================
+// FORECAST
+// =====================================================
+
+function renderForecast(list){
+
+    forecastDiv.classList.remove("show");
+
+    const forecast = list
+    .filter((item,index)=>index%8===0)
+    .slice(0,5);
+
+    forecastDiv.innerHTML = forecast.map(day=>{
+
+        const weekday =
+        new Date(day.dt*1000)
+        .toLocaleDateString("en-US",
+        {weekday:"short"});
+
+        return `
+
+        <div class="day">
+
+            <div class="day-name">
+
+                ${weekday}
+
+            </div>
+
+            <div class="day-icon">
+
+                ${weatherEmoji(day.weather[0].main)}
+
+            </div>
+
+            <div class="day-temp">
+
+                ${Math.round(day.main.temp_max)}°
+
+                /
+
+                ${Math.round(day.main.temp_min)}°
+
+            </div>
+
+        </div>
+
+        `;
+
+    }).join("");
+
+    setTimeout(()=>{
+
+        forecastDiv.classList.add("show");
+
+    },150);
+
+}
+
+
+
+// =====================================================
+// WEATHER ICONS
+// =====================================================
+
+function weatherIcon(condition){
+
+    condition = condition.toLowerCase();
+
+    if(condition.includes("clear"))
+
+        return `<div class="sun"></div>`;
+
+    if(condition.includes("cloud"))
+
+        return `<div class="cloud-anim"></div>`;
+
+    if(condition.includes("rain"))
+
+        return `<div class="rain-anim"></div>`;
+
+    if(condition.includes("snow"))
+
+        return `<div class="snow-anim">❄</div>`;
+
+    return "☀";
+
+}
+
+
+
+function weatherEmoji(condition){
+
+    condition = condition.toLowerCase();
+
+    if(condition.includes("clear")) return "☀";
+
+    if(condition.includes("cloud")) return "☁";
+
+    if(condition.includes("rain")) return "🌧";
+
+    if(condition.includes("snow")) return "❄";
+
+    if(condition.includes("storm")) return "⛈";
+
+    return "🌤";
+
+}
+
+
+
+// =====================================================
+// UTILITIES
+// =====================================================
+
+function capitalize(text){
+
+    return text
+    .split(" ")
+    .map(word=>
+
+        word.charAt(0).toUpperCase() +
+
+        word.slice(1)
+
+    )
+
+    .join(" ");
+
+}
+
+/*=========================================================
+    Part 4 : Charts • Theme • Local Storage
+=========================================================*/
+
+
+// =====================================================
+// TEMPERATURE CHART
+// =====================================================
+
+function renderChart(list){
+
+const labels = list
+    .slice(0, 8)
+    .map((item, index) => {
+
+        const date = new Date(item.dt * 1000);
+
+        if (index === 0) {
+            return `Now (${date.toLocaleTimeString([], {
+                hour: "numeric",
+                hour12: true
+            })})`;
+        }
+
+        return date.toLocaleTimeString([], {
+            hour: "numeric",
+            hour12: true
+        });
+
+    });
+
+    const temperatures = list
+        .slice(0,8)
+        .map(item => item.main.temp);
+
+
+    if(weatherChart){
+
+        weatherChart.destroy();
+
+    }
+    const ctx = chartCanvas.getContext("2d");
+    const gradient = ctx.createLinearGradient(0,0,0,300);
+    gradient.addColorStop(0,"rgba(79,142,247,.45)");
+    gradient.addColorStop(1,"rgba(79,142,247,0)");
+
+
+    weatherChart = new Chart(chartCanvas,{
+
+        type:"line",
+
+        data:{
+
+            labels:labels,
+
+            datasets:[{
+
+                label:"Temperature",
+
+                data:temperatures,
+
+                borderColor:"#4F8EF7",
+
+                backgroundColor: gradient,
+
+                fill:true,
+
+                tension:.55,
+
+                pointRadius:6,
+                pointHoverRadius:8,
+                pointBorderWidth:2,
+
+                pointBackgroundColor:"#ffffff"
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+            layout: {
+                padding: {
+                    left: 15,
+                    right: 15,
+                    top: 15,
+                    bottom: 15
+                }
+            },
+
+            plugins:{
+
+                tooltip:{
+                    backgroundColor:"#111827",
+                    titleColor:"#fff",
+                    bodyColor:"#fff",
+                    padding:12,
+                    cornerRadius:12
+                },
+
+                legend:{
+
+                    display:false
+
+                }
+
+            },
+
+            scales:{
+
+                x:{
+                    ticks:{
+                        color:"#fff",
+                        padding:10,
+                        font:{
+                            size:12
+                        }
+                    },
+                    grid:{
+                        display:false
+                    }
+                },
+
+                y:{
+                    ticks:{
+                        color:"#fff",
+                        padding:10,
+                        font:{
+                            size:12
+                        }
+                    },
+                    grid:{
+                        color:"rgba(255,255,255,.08)"
+                }
+            }
+
+        }
+
+        }
+
+    });
+
+}
+
+
+
+// =====================================================
+// UPDATE WEATHER
+// =====================================================
+
+function renderWeather(data){
+
+    const current = data.list[0];
+
+    cityName.innerHTML =
+        `${data.city.name}, ${data.city.country}`;
+
+    updateTheme(current.weather[0].main);
+
+    renderCurrentWeather(current);
+
+    renderForecast(data.list);
+
+    renderChart(data.list);
+
+}
+
+
+
+// =====================================================
+// RECENT SEARCHES
+// =====================================================
+
+function addRecentSearch(city){
+
+    city = city.trim();
+
+    recentSearches =
+
+    recentSearches.filter(c=>c!==city);
+
+    recentSearches.unshift(city);
+
+    if(recentSearches.length>5){
+
+        recentSearches.pop();
+
+    }
+
+    saveRecentSearches();
+
+}
+
+
+
+// =====================================================
+// FAVORITES (Foundation)
+// =====================================================
+
+function addFavourite(city){
+
+    if(favouriteCities.includes(city))
+
+        return;
+
+    favouriteCities.push(city);
+
+    localStorage.setItem(
+
+        "favourites",
+
+        JSON.stringify(favouriteCities)
+
+    );
+
+}
+
+
+
+// =====================================================
+// AUTO SAVE CITY
+// =====================================================
+
+function saveLastCity(city){
+
+    localStorage.setItem(
+
+        "lastCity",
+
+        city
+
+    );
+
+}
+
+
+
+// =====================================================
+// APP START
+// =====================================================
+
+function initializeApp(){
+
+    loadTheme();
+
+    loadRecentSearches();
+
+    loadLastCity();
+
+    autoTheme();
+
+}
+
+
+
+// =====================================================
+// SMALL UTILITIES
+// =====================================================
+
+function celsius(value){
+
+    return `${Math.round(value)}°C`;
+
+}
+
+
+function km(value){
+
+    return `${(value/1000).toFixed(1)} km`;
+
+}
+
+
+function pressure(value){
+
+    return `${value} hPa`;
+
+}
+
+
+
+// =====================================================
+// DEBUG MODE
+// =====================================================
+
+console.log(
+
+"%cSkyCast Ready ☀",
+
+"color:#4F8EF7;font-size:18px;font-weight:bold"
+
 );
-
-let temps = data.list.slice(0,8).map(d => d.main.temp);
-
-new Chart(document.getElementById("tempChart"), {
-  type: "line",
-  data: {
-    labels: labels,
-    datasets: [{
-      label: "Temp °C",
-      data: temps,
-      borderWidth: 2,
-      tension: 0.4
-    }]
-  },
-  options: {
-    plugins: { legend: { display: false } }
-  }
-});
-}
