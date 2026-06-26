@@ -10,10 +10,6 @@ A modern, responsive weather dashboard built using **HTML, CSS, and JavaScript**
 
 ---
 
-## 📸 Preview
-
-> Add screenshots here after uploading them to GitHub.
-
 ## 📸 Screenshots
 
 ### Dashboard
