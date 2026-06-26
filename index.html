@@ -14,8 +14,24 @@
 </head>
 
 <body>
+<div id="weatherBackground"></div>
+<div id="rainContainer"></div>
+
 
 <div class="container">
+
+    
+<div class="header">
+
+    <h1 class="logo">
+        ⛅ SkyCast
+    </h1>
+
+    <p class="tagline">
+        Real-Time Weather Dashboard
+    </p>
+
+</div>
 
     <div class="top-bar">
 
@@ -36,12 +52,12 @@
             title="Current Location">
             📍
         </button>
-
+<!-- 
         <button
             id="themeBtn"
             title="Toggle Theme">
             🌙
-        </button>
+        </button> -->
 
     </div>
 
@@ -62,6 +78,8 @@
 
         <div class="text-blur">
             <div id="current"></div>
+            <div id="sunInfo"></div>
+           
         </div>
 
     </div>
@@ -78,10 +96,19 @@
             <div class="chart-container">
                 <canvas id="tempChart"></canvas>
             </div>
+             <div id="aqiInfo"></div>
 
         </div>
 
     </div>
+
+</div>
+
+<div class="hourly-section">
+
+    <h3>⏰ Next 24 Hours</h3>
+
+    <div id="hourlyForecast"></div>
 
 </div>
 
@@ -92,6 +119,37 @@
     <div id="forecast"></div>
 
 </div>
+<!-- Recent Searches -->
+
+<div class="history-section">
+
+    <h3>🕘 Recent Searches</h3>
+
+    <div id="historyList"></div>
+
+</div>
+
+<footer class="footer">
+
+    <p class="footer-title">
+
+        ⛅ SkyCast v1.0
+
+    </p>
+
+    <p class="footer-text">
+
+        Built with ❤️ using HTML • CSS • JavaScript • OpenWeather API • Chart.js
+
+    </p>
+
+    <p class="footer-copy">
+
+        © 2026 Chintasankarraj
+
+    </p>
+
+</footer>
 
 </div>
 
