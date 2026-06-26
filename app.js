@@ -556,6 +556,22 @@ function updateTheme(condition){
 
 // }
 
+function getWindDirection(deg){
+
+    const directions = [
+        "⬆ N",
+        "↗ NE",
+        "➡ E",
+        "↘ SE",
+        "⬇ S",
+        "↙ SW",
+        "⬅ W",
+        "↖ NW"
+    ];
+
+    return directions[Math.round(deg / 45) % 8];
+
+}
 
 // =====================================================
 // CURRENT WEATHER
@@ -593,18 +609,23 @@ function renderCurrentWeather(weather){
 
         <div class="details">
 
-            <div class="detail-card">
+           <div class="detail-card">
 
-                <div class="detail-title">💨 Wind</div>
+    <div class="detail-title">🧭 Wind</div>
 
-                <div class="detail-value">
+    <div class="detail-value">
 
-                    ${weather.wind.speed} m/s
+        ${(weather.wind.speed * 3.6).toFixed(1)} km/h
 
-                </div>
+    </div>
 
-            </div>
+    <div class="detail-sub">
 
+        ${getWindDirection(weather.wind.deg)}
+
+    </div>
+
+</div>
             <div class="detail-card">
 
                 <div class="detail-title">💧 Humidity</div>
