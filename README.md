@@ -1,50 +1,149 @@
-# 🌦️ Weather App – Glassmorphism UI
+# 🌤️ SkyCast - Modern Weather Dashboard
 
-A modern weather application built using **HTML, CSS, and JavaScript** that fetches real-time weather data using the OpenWeather API.
-
-This project features a beautiful glassmorphism design, animated weather icons, dynamic backgrounds, and a responsive dashboard layout.
+A modern, responsive weather dashboard built using **HTML, CSS, and JavaScript** that provides real-time weather information, air quality, hourly forecasts, 5-day forecasts, temperature trends, weather animations, and location-based weather.
 
 ---
 
-## 🚀 Features
+## 🚀 Live Demo
 
-- 🔍 Search weather by city name
-- 🌡️ Current temperature display
-- 🤒 “Feels Like” temperature
-- 🌤️ Weather description
-- 📍 City name with country code (e.g., Golāghāt, IN)
-- 💨 Wind speed & 💧 Humidity
-- 📊 5-day forecast
-- 🧊 Glassmorphism UI design
-- 🎨 Dynamic gradient background based on weather
-- ☀️ Animated weather icons
-- ⏳ Loading spinner while fetching data
-- ❌ User-friendly error message for invalid cities
-- ⌨️ Enter key support for search
+🔗 https://skycast-swart-six.vercel.app
 
 ---
 
-## 🛠️ Technologies Used
+## 📸 Preview
+
+> Add screenshots here after uploading them to GitHub.
+
+| Dashboard |
+|-----------|
+| ![SkyCast Screenshot](images/dashboard.png) |
+
+---
+
+## ✨ Features
+
+- 🌍 Search weather for any city worldwide
+- 📍 Get weather using your current location
+- 🌡️ Real-time temperature and "Feels Like" temperature
+- 📈 Interactive Temperature Trend Chart (Chart.js)
+- 🕒 Accurate Next 24 Hours Forecast
+- 📅 Accurate 5-Day Weather Forecast
+- 🌅 Sunrise & Sunset timings
+- 🌫️ Air Quality Index (AQI)
+- 💨 Wind Speed
+- 💧 Humidity
+- 👀 Visibility
+- 🌡️ Atmospheric Pressure
+- 🌧️ Dynamic Rain Animation
+- ☁️ Animated Cloud Effects
+- 🌙 Automatic Day/Night Theme
+- 🕘 Timezone-aware forecasts
+- 🔎 Recent Search History
+- 📱 Fully Responsive UI
+- ✨ Modern Glassmorphism Design
+
+---
+
+## 🛠️ Tech Stack
 
 - HTML5
-- CSS3 (Glassmorphism + Animations + Grid)
+- CSS3
 - JavaScript (ES6)
-- OpenWeather API
+- OpenWeatherMap API
+- Chart.js
+- Vercel
 
 ---
 
 ## 📂 Project Structure
-weather-app/
-│── index.html
-│── style.css
-│── app.js
-│── README.md
 
+```
+SkyCast/
+│
+├── index.html
+├── style.css
+├── app.js
+├── README.md
+└── images/
+```
 
-🙌 Author
+---
 
-Developed by Chintasankarraj
+## ⚙️ Installation
 
-⭐ If you like this project
+Clone the repository
 
-Give it a ⭐ on GitHub!
+```bash
+git clone https://github.com/chintasankarraj/weather-app.git
+```
+
+Go into the folder
+
+```bash
+cd weather-app
+```
+
+Open
+
+```
+index.html
+```
+
+or run using Live Server.
+
+---
+
+## 📌 APIs Used
+
+OpenWeatherMap API
+
+- Current Weather API
+- 5-Day Forecast API
+- Air Pollution API
+- Geocoding API
+
+---
+
+## 🌟 Highlights
+
+✔ Accurate timezone handling
+
+✔ Interactive temperature trend chart
+
+✔ Dynamic weather animations
+
+✔ Responsive dashboard
+
+✔ Real-time weather data
+
+✔ Professional UI/UX
+
+---
+
+## 🔮 Future Improvements
+
+- UV Index
+- Weather Alerts
+- Multiple Themes
+- Weather Maps
+- Sunrise/Sunset Chart
+- Favorite Cities
+- PWA Support
+
+---
+
+## 👨‍💻 Author
+
+**Chintasankarraj**
+
+GitHub:
+https://github.com/chintasankarraj
+
+LinkedIn:
+(Add your LinkedIn URL)
+
+---
+
+## ⭐ Support
+
+If you like this project, consider giving it a ⭐ on GitHub.
