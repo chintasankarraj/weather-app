@@ -21,7 +21,7 @@ const cityInput = document.getElementById("city");
 
 const searchBtn = document.getElementById("searchBtn");
 
-const themeBtn = document.getElementById("themeBtn");
+// const themeBtn = document.getElementById("themeBtn");
 
 const locationBtn = document.getElementById("locationBtn");
 
@@ -33,7 +33,15 @@ const currentDiv = document.getElementById("current");
 
 const forecastDiv = document.getElementById("forecast");
 
+const sunInfo = document.getElementById("sunInfo");
+
+const aqiInfo = document.getElementById("aqiInfo");
+
+const hourlyForecast = document.getElementById("hourlyForecast");
+
 const chartCanvas = document.getElementById("tempChart");
+
+const historyList = document.getElementById("historyList");
 
 const container = document.querySelector(".container");
 
@@ -48,10 +56,68 @@ let currentTheme = "light";
 
 let currentCity = "";
 
+let cityTimezone = 0;
+
 let recentSearches = [];
 
 let favouriteCities = [];
 
+// ====================================
+// RECENT SEARCHES
+// ====================================
+
+function saveRecentSearch(city){
+
+    city = city.trim();
+
+    if(!city) return;
+
+    // Remove duplicate if it already exists
+    recentSearches = recentSearches.filter(
+        c => c.toLowerCase() !== city.toLowerCase()
+    );
+
+    // Add newest city to the beginning
+    recentSearches.unshift(city);
+
+    // Keep only last 5 searches
+    if(recentSearches.length > 5){
+        recentSearches.pop();
+    }
+
+    localStorage.setItem(
+        "recentSearches",
+        JSON.stringify(recentSearches)
+    );
+
+    renderRecentSearches();
+}
+
+function renderRecentSearches(){
+
+    historyList.innerHTML = "";
+
+    recentSearches.forEach(city=>{
+
+        const chip = document.createElement("div");
+
+        chip.className = "history-item";
+
+        chip.textContent = city;
+
+        chip.onclick = ()=>{
+
+            cityInput.value = city;
+
+            getWeather();
+
+        };
+
+        historyList.appendChild(chip);
+
+    });
+
+}
 
 // =====================================================
 // EVENT LISTENERS
@@ -71,9 +137,11 @@ if (cityInput) {
     });
 }
 
-if (themeBtn) {
-    themeBtn.addEventListener("click", toggleTheme);
-}
+// if (themeBtn) {
+//     themeBtn.addEventListener("click", () => {
+//     console.log("Theme button clicked");
+//     });
+// }
 
 if (locationBtn) {
     locationBtn.addEventListener("click", getCurrentLocation);
@@ -111,26 +179,26 @@ window.addEventListener("load",()=>{
 // LOCAL STORAGE
 // =====================================================
 
-function loadTheme(){
+// function loadTheme(){
 
-    const savedTheme = localStorage.getItem("theme");
+//     const savedTheme = localStorage.getItem("theme");
 
-    if(savedTheme==="dark"){
+//     if(savedTheme==="dark"){
 
-        document.body.classList.add("dark");
+//         document.body.classList.add("dark");
 
-        currentTheme="dark";
+//         currentTheme="dark";
 
-    }
+//     }
 
-}
+// }
 
 
-function saveTheme(){
+// function saveTheme(){
 
-    localStorage.setItem("theme",currentTheme);
+//     localStorage.setItem("theme",currentTheme);
 
-}
+// }
 
 
 function loadLastCity(){
@@ -258,13 +326,18 @@ async function getWeather(){
 
         hideLoader();
 
-        if(data.cod !== "200"){
+       if(data.cod !== "200"){
 
-            showError("City not found.");
+    showError("City not found.");
 
-            return;
+    return;
 
-        }
+}
+
+renderWeather(data);
+
+// Save successful search
+saveRecentSearch(city);
 
         renderWeather(data);
 
@@ -356,43 +429,43 @@ function locationError(){
 
 
 
-// =====================================================
-// THEME
-// =====================================================
+// // =====================================================
+// // THEME
+// // =====================================================
 
-function toggleTheme(){
+// function toggleTheme(){
 
-    document.body.classList.toggle("dark");
+//     document.body.classList.toggle("dark");
 
-    currentTheme =
+//     currentTheme =
 
-    document.body.classList.contains("dark")
+//     document.body.classList.contains("dark")
 
-    ?
+//     ?
 
-    "dark"
+//     "dark"
 
-    :
+//     :
 
-    "light";
+//     "light";
 
-    saveTheme();
+//     saveTheme();
 
-}
+// }
 
 
 
-function autoTheme(){
+// function autoTheme(){
 
-    const hour = new Date().getHours();
+//     const hour = new Date().getHours();
 
-    if(hour>=18 || hour<=6){
+//     if(hour>=18 || hour<=6){
 
-        document.body.classList.add("dark");
+//         document.body.classList.add("dark");
 
-    }
+//     }
 
-}
+// }
 
 
 
@@ -581,7 +654,6 @@ function renderCurrentWeather(weather){
 }
 
 
-
 // =====================================================
 // FORECAST
 // =====================================================
@@ -590,16 +662,48 @@ function renderForecast(list){
 
     forecastDiv.classList.remove("show");
 
-    const forecast = list
-    .filter((item,index)=>index%8===0)
-    .slice(0,5);
+    const dailyData = {};
+
+    list.forEach(item=>{
+
+        const date = new Date((item.dt + cityTimezone) * 1000)
+            .toISOString()
+            .split("T")[0];
+
+        if(!dailyData[date]){
+
+            dailyData[date]={
+
+                temps:[],
+
+                weather:item.weather[0].main,
+
+                dt:item.dt
+
+            };
+
+        }
+
+        dailyData[date].temps.push(item.main.temp);
+
+    });
+
+    const forecast = Object.values(dailyData).slice(0,5);
 
     forecastDiv.innerHTML = forecast.map(day=>{
 
-        const weekday =
-        new Date(day.dt*1000)
-        .toLocaleDateString("en-US",
-        {weekday:"short"});
+        const weekday = new Date((day.dt + cityTimezone) * 1000)
+            .toLocaleDateString("en-US",{
+
+                weekday:"short",
+
+                timeZone:"UTC"
+
+            });
+
+        const maxTemp = Math.max(...day.temps);
+
+        const minTemp = Math.min(...day.temps);
 
         return `
 
@@ -613,17 +717,17 @@ function renderForecast(list){
 
             <div class="day-icon">
 
-                ${weatherEmoji(day.weather[0].main)}
+                ${weatherEmoji(day.weather)}
 
             </div>
 
             <div class="day-temp">
 
-                ${Math.round(day.main.temp_max)}°
+                ${Math.round(maxTemp)}°
 
                 /
 
-                ${Math.round(day.main.temp_min)}°
+                ${Math.round(minTemp)}°
 
             </div>
 
@@ -641,7 +745,64 @@ function renderForecast(list){
 
 }
 
+// ====================================
+// HOURLY FORECAST
+// ====================================
 
+function renderHourlyForecast(list){
+
+    hourlyForecast.innerHTML = "";
+
+    const nextHours = list.slice(0,8);
+
+    nextHours.forEach((item,index)=>{
+
+        const date = new Date((item.dt + cityTimezone) * 1000);
+
+        let time;
+
+        if(index===0){
+
+            time = "Now";
+
+        }else{
+
+time = date.toUTCString().match(/\d{1,2}:\d{2}/)[0];
+
+const hour = date.getUTCHours();
+
+time = new Date(Date.UTC(1970,0,1,hour,0))
+    .toLocaleTimeString([],{
+        hour:'numeric',
+        hour12:true,
+        timeZone:'UTC'
+    });
+
+        }
+
+        const temp = Math.round(item.main.temp);
+
+        const weather = item.weather[0].main;
+
+        const icon = weatherEmoji(weather);
+
+        hourlyForecast.innerHTML += `
+
+            <div class="hour-card">
+
+                <div class="hour-time">${time}</div>
+
+                <div class="hour-icon">${icon}</div>
+
+                <div class="hour-temp">${temp}°</div>
+
+            </div>
+
+        `;
+
+    });
+
+}
 
 // =====================================================
 // WEATHER ICONS
@@ -722,24 +883,24 @@ function capitalize(text){
 // TEMPERATURE CHART
 // =====================================================
 
-function renderChart(list){
+function renderChart(current,list){
 
 const labels = list
     .slice(0, 8)
     .map((item, index) => {
 
-        const date = new Date(item.dt * 1000);
+        const date = new Date((item.dt + cityTimezone) * 1000);
 
-        if (index === 0) {
-            return `Now (${date.toLocaleTimeString([], {
-                hour: "numeric",
-                hour12: true
-            })})`;
-        }
+        return date.toLocaleTimeString([],{
+    hour:"numeric",
+    hour12:true,
+    timeZone:"UTC"
+});
 
         return date.toLocaleTimeString([], {
             hour: "numeric",
-            hour12: true
+            hour12: true,
+            timeZone: "UTC"
         });
 
     });
@@ -860,30 +1021,267 @@ const labels = list
 
 }
 
+// ====================================
+// RAIN ANIMATION
+// ====================================
+
+function createRain(){
+
+    const rain = document.getElementById("rainContainer");
+
+    rain.innerHTML="";
+
+    for(let i=0;i<120;i++){
+
+        const drop=document.createElement("div");
+
+        drop.className="raindrop";
+
+        drop.style.left=Math.random()*100+"vw";
+
+        drop.style.animationDuration=
+
+            (1.0+Math.random()*1.0)+"s";
+
+        drop.style.animationDelay=
+
+            Math.random()*2+"s";
+
+        rain.appendChild(drop);
+
+    }
+
+}
+
+function clearRain(){
+
+    document.getElementById("rainContainer").innerHTML="";
+
+}
 
 
+
+// ====================================
+// WEATHER BACKGROUND
+// ====================================
+
+function setWeatherBackground(weather){
+
+    const bg = document.getElementById("weatherBackground");
+
+    // Remove previous background classes
+    bg.className = "";
+    clearRain();
+    switch(weather.toLowerCase()){
+
+        case "clear":
+            bg.classList.add("bg-clear");
+            break;
+
+        case "clouds":
+            bg.classList.add("bg-clouds");
+            break;
+
+        case "rain":
+        case "drizzle":
+            bg.classList.add("bg-rain");
+            createRain();
+            break;
+
+        case "thunderstorm":
+            bg.classList.add("bg-thunder");
+            break;
+
+        case "snow":
+            bg.classList.add("bg-snow");
+            break;
+
+        case "mist":
+        case "fog":
+        case "haze":
+        case "smoke":
+            bg.classList.add("bg-mist");
+            break;
+
+        default:
+            bg.classList.add("bg-clear");
+    }
+
+}
 // =====================================================
 // UPDATE WEATHER
 // =====================================================
 
 function renderWeather(data){
 
+    cityTimezone = data.city.timezone;
+
     const current = data.list[0];
+    setWeatherBackground(current.weather[0].main);
 
     cityName.innerHTML =
         `${data.city.name}, ${data.city.country}`;
 
     updateTheme(current.weather[0].main);
 
-    renderCurrentWeather(current);
+   renderCurrentWeather(current);
 
-    renderForecast(data.list);
+renderSunInfo(data.city);
 
-    renderChart(data.list);
+fetchAQI(
+    data.city.coord.lat,
+    data.city.coord.lon
+);
+
+// NEW
+renderHourlyForecast(data.list);
+
+renderForecast(data.list);
+
+renderChart(data.list[0], data.list);
+}
+
+// ====================================
+// SUNRISE & SUNSET
+// ====================================
+
+function renderSunInfo(city){
+
+const sunriseDate = new Date((city.sunrise + cityTimezone) * 1000);
+
+const sunsetDate = new Date((city.sunset + cityTimezone) * 1000);
+
+const sunrise = sunriseDate.toLocaleTimeString([],{
+
+    hour:'2-digit',
+
+    minute:'2-digit',
+
+    hour12:true,
+
+    timeZone:'UTC'
+
+});
+
+const sunset = sunsetDate.toLocaleTimeString([],{
+
+    hour:'2-digit',
+
+    minute:'2-digit',
+
+    hour12:true,
+
+    timeZone:'UTC'
+
+});
+
+    sunInfo.innerHTML = `
+
+        <div class="sun-card">
+
+            <h4>🌅 Sunrise</h4>
+
+            <p>${sunrise}</p>
+
+        </div>
+
+        <div class="sun-card">
+
+            <h4>🌇 Sunset</h4>
+
+            <p>${sunset}</p>
+
+        </div>
+
+    `;
 
 }
 
+// ====================================
+// AIR QUALITY INDEX
+// ====================================
 
+async function fetchAQI(lat, lon){
+
+    try{
+
+        const response = await fetch(
+
+`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`
+
+        );
+
+        const data = await response.json();
+
+        renderAQI(data.list[0].main.aqi);
+
+    }
+
+    catch(error){
+
+        console.error("AQI Error:", error);
+
+    }
+
+}
+
+function renderAQI(aqi){
+
+    let status = "";
+    let color = "";
+
+    switch(aqi){
+
+        case 1:
+            status = "Good";
+            color = "#22c55e";
+            break;
+
+        case 2:
+            status = "Fair";
+            color = "#84cc16";
+            break;
+
+        case 3:
+            status = "Moderate";
+            color = "#eab308";
+            break;
+
+        case 4:
+            status = "Poor";
+            color = "#f97316";
+            break;
+
+        case 5:
+            status = "Very Poor";
+            color = "#ef4444";
+            break;
+    }
+
+    aqiInfo.innerHTML = `
+
+        <div class="aqi-card">
+
+            <h3>🌫 Air Quality</h3>
+
+            <div
+                class="aqi-value"
+                style="color:${color};"
+            >
+                AQI ${aqi}
+            </div>
+
+            <div class="aqi-status">
+
+                ${status}
+
+            </div>
+
+        </div>
+
+    `;
+
+}
 
 // =====================================================
 // RECENT SEARCHES
@@ -959,13 +1357,13 @@ function saveLastCity(city){
 
 function initializeApp(){
 
-    loadTheme();
+    // loadTheme();
 
     loadRecentSearches();
 
     loadLastCity();
 
-    autoTheme();
+    // autoTheme();
 
 }
 
@@ -1008,3 +1406,8 @@ console.log(
 "color:#4F8EF7;font-size:18px;font-weight:bold"
 
 );
+recentSearches = JSON.parse(
+    localStorage.getItem("recentSearches")
+) || [];
+
+renderRecentSearches();
