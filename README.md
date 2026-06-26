@@ -14,9 +14,29 @@ A modern, responsive weather dashboard built using **HTML, CSS, and JavaScript**
 
 > Add screenshots here after uploading them to GitHub.
 
-| Dashboard |
-|-----------|
-| ![SkyCast Screenshot](images/dashboard.png) |
+## 📸 Screenshots
+
+### Dashboard
+
+![Dashboard](images/dashboard.png)
+
+---
+
+### Forecast
+
+![Forecast](images/forecast.png)
+
+---
+
+### Rain Animation
+
+![Rain](images/rainanimation.png)
+
+---
+
+### 5Day Forecast
+
+![Five Day Forecast](images/5dayforecast.png)
 
 ---
 
